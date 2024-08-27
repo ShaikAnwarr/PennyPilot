@@ -3,14 +3,17 @@ package com.shaik.pennypilot
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,11 +22,16 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.codewithfk.expensetracker.android.R
+import com.shaik.pennypilot.data.model.ExpenseEntity
 import com.shaik.pennypilot.ui.theme.LightMaroon
+import com.shaik.pennypilot.viewmodel.HomeViewModel
+import com.shaik.pennypilot.viewmodel.HomeViewModelFactory
 import com.shaik.pennypilot.widgets.ExpenseTextView
 
 @Composable
 fun HomeScreen() {
+    val viewModel : HomeViewModel=
+        HomeViewModelFactory(LocalContext.current).create(HomeViewModel::class.java)
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.Black
@@ -70,14 +78,17 @@ fun HomeScreen() {
                         .align(Alignment.CenterEnd)
                 )
             }
-
+            val state = viewModel.expenses.collectAsState(initial = emptyList())
+            val expenses = viewModel.getTotalExpense(state.value)
+            val income = viewModel.getTotalIncome(state.value)
+            val balance = viewModel.getBalance(state.value)
             CardItem(
                 modifier = Modifier
                     .constrainAs(card) {
                         top.linkTo(nameRow.bottom, margin = 16.dp)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                    }
+                    }, balance, income, expenses
             )
             TransactionList(modifier = Modifier.fillMaxWidth().constrainAs(list){
                 top.linkTo(card.bottom)
@@ -85,13 +96,14 @@ fun HomeScreen() {
                 end.linkTo(parent.end)
                 bottom.linkTo(parent.bottom)
                 height = Dimension.fillToConstraints
-            })
+            }, list = state.value,viewModel
+            )
         }
     }
 }
 
 @Composable
-fun CardItem(modifier: Modifier) {
+fun CardItem(modifier: Modifier, balance: String, income: String, expenses: String) {
     Column(
         modifier = modifier
             .padding(16.dp)
@@ -112,7 +124,7 @@ fun CardItem(modifier: Modifier) {
                     color = Color.White
                 )
                 ExpenseTextView(
-                    text = "₹ 12,000",
+                    text =balance,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -135,83 +147,45 @@ fun CardItem(modifier: Modifier) {
             CardRowItem(
                 modifier = Modifier,
                 title = "Income",
-                amount = "₹ 20,000",
+                amount = income,
                 image = R.drawable.ic_income
             )
             CardRowItem(
                 modifier = Modifier,
                 title = "Expenses",
-                amount = "₹ 8,000",
+                amount = expenses,
                 image = R.drawable.ic_expense
             )
         }
     }
 }
 @Composable
-fun TransactionList(modifier: Modifier){
-    Column(modifier = modifier.padding(horizontal=16.dp)) {
-        Box(modifier = Modifier.fillMaxWidth()){
-            ExpenseTextView(text = "Recent Transactions",color = Color.White, fontSize = 20.sp)
-            ExpenseTextView(text = "See All", fontSize = 16.sp, color = Color.White, modifier = Modifier.align(Alignment.CenterEnd))
-
+fun TransactionList(modifier: Modifier, list: List<ExpenseEntity>,viewModel: HomeViewModel) {
+    LazyColumn(modifier = modifier.padding(horizontal = 16.dp)) {
+        item {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                ExpenseTextView(text = "Recent Transactions", color = Color.White, fontSize = 20.sp)
+                ExpenseTextView(
+                    text = "See All",
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
+            }
         }
-        Spacer(modifier = Modifier.size(8.dp))
-        TransactionItem(
-            title = "Starbucks",
-            amount = "-₹ 1000",
-            icon = R.drawable.ic_starbucks,
-            date = "19/08/2023",
-            color = Color.Red
-
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        TransactionItem(
-            title = "Medicine",
-            amount = "-₹ 1500",
-            icon = R.drawable.ic_upwork,
-            date = "16/08/2023",
-            color = Color.Red
-
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        TransactionItem(
-            title = "EazyPay",
-            amount = "+₹ 1000",
-            icon = R.drawable.eazypay,
-            date = "15/08/2023",
-            color = Color.Green
-
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        TransactionItem(
-            title = "Netflix",
-            amount = "-₹ 500",
-            icon = R.drawable.ic_netflix,
-            date = "11/08/2023",
-            color = Color.Red
-
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        TransactionItem(
-            title = "Paypal",
-            amount = "-₹ 4100",
-            icon = R.drawable.ic_paypal,
-            date = "9/08/2023",
-            color = Color.Red
-
-        )
-        Spacer(modifier = Modifier.size(8.dp))
-        TransactionItem(
-            title = "Penny Pay",
-            amount = "+₹ 900",
-            icon = R.drawable.pennypayicon,
-            date = "1/08/2023",
-            color = Color.Green
-
-        )
+        // Use the 'items' function directly with the list to avoid indexing errors
+        items(list) { item ->
+            TransactionItem(
+                title = item.title,
+                amount = item.amount.toString(),
+                icon = viewModel.getItemIcon(item),
+                date = item.date.toString(),
+                color = if (item.type == "income") Color.Green else Color.Red
+            )
+        }
     }
-
 }
+
 
 @Composable
 fun CardRowItem(modifier: Modifier, title: String, amount: String, image: Int) {
