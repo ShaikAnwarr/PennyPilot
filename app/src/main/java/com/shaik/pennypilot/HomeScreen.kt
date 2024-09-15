@@ -2,9 +2,11 @@ package com.shaik.pennypilot
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -21,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.codewithfk.expensetracker.android.R
 import com.shaik.pennypilot.data.model.ExpenseEntity
 import com.shaik.pennypilot.ui.theme.LightMaroon
@@ -29,7 +33,7 @@ import com.shaik.pennypilot.viewmodel.HomeViewModelFactory
 import com.shaik.pennypilot.widgets.ExpenseTextView
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     val viewModel : HomeViewModel=
         HomeViewModelFactory(LocalContext.current).create(HomeViewModel::class.java)
     Surface(
@@ -38,7 +42,7 @@ fun HomeScreen() {
 
     ) {
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-            val (nameRow, list, card, topBar, dots) = createRefs()
+            val (nameRow, list, card, topBar, dots,add) = createRefs()
 
             Image(
                 painter = painterResource(id = R.drawable.ic_topbar),
@@ -98,6 +102,20 @@ fun HomeScreen() {
                 height = Dimension.fillToConstraints
             }, list = state.value,viewModel
             )
+            Image(
+                painter = painterResource(id = android.R.drawable.ic_menu_add),
+                contentDescription = null,
+                modifier = Modifier
+                    .constrainAs(add) {
+                        bottom.linkTo(parent.bottom)
+                        end.linkTo(parent.end)
+                    }
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        navController.navigate("/add")
+                    }
+            )
         }
     }
 }
@@ -137,21 +155,20 @@ fun CardItem(modifier: Modifier, balance: String, income: String, expenses: Stri
                     .align(Alignment.CenterEnd)
             )
         }
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween // Align columns to the opposite ends
         ) {
             CardRowItem(
-                modifier = Modifier,
+                modifier = Modifier.align(Alignment.CenterStart),
                 title = "Income",
                 amount = income,
                 image = R.drawable.ic_income
             )
+            Spacer(modifier = Modifier.size(8.dp))
             CardRowItem(
-                modifier = Modifier,
+                modifier = Modifier.align(Alignment.CenterEnd),
                 title = "Expenses",
                 amount = expenses,
                 image = R.drawable.ic_expense
@@ -187,6 +204,41 @@ fun TransactionList(modifier: Modifier, list: List<ExpenseEntity>,viewModel: Hom
 }
 
 
+
+@Composable
+fun TransactionItem(title: String, amount: String, icon: Int, date: String, color: Color){
+    Box(modifier=Modifier.fillMaxWidth().padding(vertical = 8.dp)){
+        Row(){
+            Image(
+                painter = painterResource(id = icon),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(50.dp)
+            )
+
+            Spacer(modifier=Modifier.size(8.dp))
+            Column{
+                ExpenseTextView(
+                        text = title,
+                        fontSize = 16.sp
+                )
+                ExpenseTextView(
+                    text = date,
+                    fontSize = 12.sp
+                )
+
+            }
+        }
+        ExpenseTextView(
+            text =amount,
+            fontSize = 20.sp,
+            modifier = Modifier.align(Alignment.CenterEnd),
+            color = color,
+            fontWeight = FontWeight.SemiBold
+        )
+
+    }
+}
 @Composable
 fun CardRowItem(modifier: Modifier, title: String, amount: String, image: Int) {
     Column(modifier = modifier) {
@@ -204,51 +256,15 @@ fun CardRowItem(modifier: Modifier, title: String, amount: String, image: Int) {
         }
         ExpenseTextView(
             text = amount,
-            fontSize = 16.sp,
+            fontSize = 20.sp,
             color = Color.White
         )
     }
 
 }
-@Composable
-fun TransactionItem(title: String, amount: String, icon: Int, date: String, color: Color){
-    Box(modifier=Modifier.fillMaxWidth().padding(vertical = 8.dp)){
-        Row{
-            Image(
-                painter = painterResource(id = icon),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )
-
-            Spacer(modifier=Modifier.size(8.dp))
-            Column{
-                ExpenseTextView(
-                        text = title,
-                        fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                ExpenseTextView(
-                    text = date,
-                    fontSize = 12.sp,
-                )
-
-            }
-        }
-        ExpenseTextView(
-            text =amount,
-            fontSize = 16.sp,
-            modifier = Modifier.align(Alignment.CenterEnd),
-            color = color,
-            fontWeight = FontWeight.SemiBold
-        )
-
-    }
-}
 
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview() {
-    HomeScreen()
+    HomeScreen(rememberNavController())
 }

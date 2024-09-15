@@ -64,7 +64,7 @@ class HomeViewModel(dao : ExpenseDao) : ViewModel() {
 class HomeViewModelFactory(private val context: Context): ViewModelProvider.Factory{
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            val dao = ExpenseDataBase.getDatabase(context).expenseDao()
+            val dao = ExpenseDataBase.getInstance(context).expenseDao()
             @Suppress("UNCHECKED_CAST")
             return HomeViewModel(dao) as T
 

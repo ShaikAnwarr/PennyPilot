@@ -11,44 +11,71 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [ExpenseEntity::class], version = 1)
+@Database(entities = [ExpenseEntity::class], version = 1, exportSchema = false)
 abstract class ExpenseDataBase : RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao
 
     companion object {
-        @Volatile
-        private var INSTANCE: ExpenseDataBase? = null
+        const val DATABASE_NAME = "expense_database"
 
-        fun getDatabase(context: Context): ExpenseDataBase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,  // Use application context to avoid memory leaks
-                    ExpenseDataBase::class.java,
-                    DATABASE_NAME
-                ).addCallback(object : RoomDatabase.Callback() {
-                    override fun onCreate(db: SupportSQLiteDatabase) {
-                        super.onCreate(db)
-                        InitBasicData(context)  // Pass context to the initialization function
-                    }
+        @JvmStatic
+        fun getInstance(context: Context): ExpenseDataBase {
+            return Room.databaseBuilder(
+                context, ExpenseDataBase::class.java,
+                DATABASE_NAME
+            ).addCallback(object : Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+//                    InitBasicData(context)
+                }
 
-                    // Corrected the InitBasicData function
-                    fun InitBasicData(context: Context) {
-                        // Launch a coroutine to insert initial data asynchronously
-                        CoroutineScope(Dispatchers.IO).launch {
-                            // Get the database instance and insert initial data
-                            val expenseDao = getDatabase(context).expenseDao()
-                            expenseDao.insertExpense(ExpenseEntity(1, "Salary", 50000.70, System.currentTimeMillis(), "Salary", "Income"))
-                            expenseDao.insertExpense(ExpenseEntity(2, "Paypal", 2000.80, System.currentTimeMillis(), "Paypal", "Income"))
-                            expenseDao.insertExpense(ExpenseEntity(3, "Netflix", 1500.98, System.currentTimeMillis(), "Netflix", "Expense"))
-                            expenseDao.insertExpense(ExpenseEntity(4, "Starbucks", 800.19, System.currentTimeMillis(), "Starbucks", "Expense"))
-                        }
+                fun InitBasicData(context: Context) {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val dao = getInstance(context).expenseDao()
+                        dao.insertExpense(
+                            ExpenseEntity(
+                                null,
+                                "Salary",
+                                5000.40,
+                                "2021-08-01",
+                                "Salary",
+                                "Income"
+                            )
+                        )
+                        dao.insertExpense(
+                            ExpenseEntity(
+                                null,
+                                "Paypal",
+                                2000.50,
+                                "2021-08-01",
+                                "Paypal",
+                                "Income"
+                            )
+                        )
+                        dao.insertExpense(
+                            ExpenseEntity(
+                                null,
+                                "Netflix",
+                                100.43,
+                                "2021-08-01",
+                                "Netflix",
+                                "Expense"
+                            )
+                        )
+                        dao.insertExpense(
+                            ExpenseEntity(
+                                null,
+                                "Starbucks",
+                                400.56,
+                                "2021-08-02",
+                                "Starbucks",
+                                "Income"
+                            )
+                        )
                     }
-                }).build()
-                INSTANCE = instance
-                instance
-            }
+                }
+            })
+                .build()
         }
-
-        private const val DATABASE_NAME = "expense_db"
     }
 }
