@@ -1,15 +1,19 @@
 package com.shaik.pennypilot.viewmodel
 
-
-import android.content.Context
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.shaik.pennypilot.data.ExpenseDataBase // Adjust the correct path for your database
+import androidx.lifecycle.viewModelScope
+import com.shaik.pennypilot.base.AddExpenseNavigationEvent
+import com.shaik.pennypilot.base.NavigationEvent
 import com.shaik.pennypilot.data.dao.ExpenseDao
 import com.shaik.pennypilot.data.model.ExpenseEntity
-import java.lang.IllegalArgumentException
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class AddingExpenseViewModel(val dao: ExpenseDao) : ViewModel() {
+@HiltViewModel
+class AddingExpenseViewModel @Inject constructor(val dao: ExpenseDao) : BaseViewModel() {
+
 
     suspend fun addExpense(expenseEntity: ExpenseEntity): Boolean {
         return try {
@@ -19,16 +23,37 @@ class AddingExpenseViewModel(val dao: ExpenseDao) : ViewModel() {
             false
         }
     }
+
+    override fun onEvent(event: UiEvent) {
+        when (event) {
+            is AddExpenseUiEvent.OnAddExpenseClicked -> {
+                viewModelScope.launch {
+                    withContext(Dispatchers.IO) {
+                        val result = addExpense(event.expenseEntity)
+                        if (result) {
+                            _navigationEvent.emit(NavigationEvent.NavigateBack)
+                        }
+                    }
+                }
+            }
+
+            is AddExpenseUiEvent.OnBackPressed -> {
+                viewModelScope.launch {
+                    _navigationEvent.emit(NavigationEvent.NavigateBack)
+                }
+            }
+
+            is AddExpenseUiEvent.OnMenuClicked -> {
+                viewModelScope.launch {
+                    _navigationEvent.emit(AddExpenseNavigationEvent.MenuOpenedClicked)
+                }
+            }
+        }
+    }
 }
 
-class AddingExpenseViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        // Ensure modelClass is of type AddingExpenseViewModel
-        if (modelClass.isAssignableFrom(AddingExpenseViewModel::class.java)) {
-            val dao = ExpenseDataBase.getInstance(context).expenseDao() // Ensure the correct database instance is called
-            @Suppress("UNCHECKED_CAST")
-            return AddingExpenseViewModel(dao) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
+sealed class AddExpenseUiEvent : UiEvent() {
+    data class OnAddExpenseClicked(val expenseEntity: ExpenseEntity) : AddExpenseUiEvent()
+    object OnBackPressed : AddExpenseUiEvent()
+    object OnMenuClicked : AddExpenseUiEvent()
 }

@@ -3,14 +3,12 @@ package com.shaik.pennypilot.data.model
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-
-@Entity(tableName = "expenses")
+@Entity(tableName = "expense_table")
 data class ExpenseEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int?,
+    @PrimaryKey(autoGenerate = true) val id: Int?,
     val title: String,
     val amount: Double,
     val date: String,
-    val category: String,
-    val type: String
+    val type: String,
+    val value: String
 )
