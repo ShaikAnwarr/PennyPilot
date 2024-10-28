@@ -20,7 +20,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.codewithfk.expensetracker.android.R
+import com.shaik.pennypilot.android.R
 import com.shaik.pennypilot.ui.theme.Zinc
 
 @Composable

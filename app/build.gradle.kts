@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.codewithfk.expensetracker.android"
+    namespace = "com.shaik.pennypilot.android"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.codewithfk.expensetracker.android"
+        applicationId = "com.shaik.pennypilot.android"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

@@ -57,7 +57,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.codewithfk.expensetracker.android.R
+import com.shaik.pennypilot.android.R
 import com.shaik.pennypilot.base.AddExpenseNavigationEvent
 import com.shaik.pennypilot.base.NavigationEvent
 import com.shaik.pennypilot.data.model.ExpenseEntity

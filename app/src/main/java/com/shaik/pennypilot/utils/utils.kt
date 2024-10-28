@@ -1,6 +1,6 @@
 package com.shaik.pennypilot.utils
 
-import com.codewithfk.expensetracker.android.R
+import com.shaik.pennypilot.android.R
 import com.shaik.pennypilot.data.model.ExpenseEntity
 import java.text.NumberFormat
 import java.text.ParseException
