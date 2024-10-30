@@ -15,8 +15,13 @@ dagger-hilt= "2.51.1"
 compose-navigation = "2.8.3"
 firebaseDatabaseKtx = "21.0.0"
 firebaseComponents = "18.0.1"
+ksp = "1.9.0-1.0.20"
+compose-compiler = "1.5.1"
+
+
 
 [libraries]
+compose-compiler = { group = "androidx.compose.compiler", name = "compiler", version.ref = "compose-compiler" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -43,3 +48,6 @@ firebase-components = { group = "com.google.firebase", name = "firebase-componen
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger-hilt" }
+googleKsp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+
+

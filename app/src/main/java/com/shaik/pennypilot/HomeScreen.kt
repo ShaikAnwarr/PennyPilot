@@ -161,7 +161,6 @@ fun MultiFloatingActionButton(
     onAddExpenseClicked: () -> Unit,
     onAddIncomeClicked: () -> Unit
 ) {
-    // Correctly define the expanded state
     val expanded = remember { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
@@ -276,7 +275,7 @@ fun CardItem(
                     .align(Alignment.CenterStart),
                 title = "Income",
                 amount = income,
-                imaget = R.drawable.ic_income
+                image = R.drawable.ic_income
             )
             Spacer(modifier = Modifier.size(8.dp))
             CardRowItem(
@@ -284,7 +283,7 @@ fun CardItem(
                     .align(Alignment.CenterEnd),
                 title = "Expense",
                 amount = expense,
-                imaget = R.drawable.ic_expense
+                image = R.drawable.ic_expense
             )
         }
 
@@ -378,12 +377,12 @@ fun TransactionItem(
 }
 
 @Composable
-fun CardRowItem(modifier: Modifier, title: String, amount: String, imaget: Int) {
+fun CardRowItem(modifier: Modifier, title: String, amount: String, image: Int) {
     Column(modifier = modifier) {
         Row {
 
             Image(
-                painter = painterResource(id = imaget),
+                painter = painterResource(id = image),
                 contentDescription = null,
             )
             Spacer(modifier = Modifier.size(8.dp))

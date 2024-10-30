@@ -1,10 +1,10 @@
-// app/build.gradle.kts
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+   // id("com.google.devtools.ksp") version "1.9.23-1.0.20"
+    id(libs.plugins.googleKsp.get().pluginId)
+
 }
 
 android {
@@ -35,12 +35,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11 // Update to Java 11 or 17 as needed
+        targetCompatibility = JavaVersion.VERSION_11 // Update to Java 11 or 17 as needed
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11" // Update JVM target to "11" or "17" as needed
     }
 
     buildFeatures {
@@ -48,7 +48,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.0"
     }
 
     packaging {
@@ -59,7 +59,7 @@ android {
 }
 
 dependencies {
-    // Jetpack Compose
+    // Jetpack Compose dependencies
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -70,26 +70,26 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
 
-    // Dagger Hilt
+    // Dagger Hilt with KSP instead of kapt
     implementation("com.google.dagger:hilt-android:2.51.1")
-    implementation(libs.firebase.components)
-    kapt("com.google.dagger:hilt-compiler:2.51.1")
+    ksp("com.google.dagger:hilt-compiler:2.51.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
-    // Room Database
+    // Room Database dependencies
     val room_version = "2.6.1"
     implementation("androidx.room:room-runtime:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
+    ksp("androidx.room:room-compiler:$room_version")
+
     implementation("androidx.room:room-ktx:$room_version")
 
     // Navigation Component for Compose
     val nav_version = "2.8.3"
     implementation("androidx.navigation:navigation-compose:$nav_version")
 
-    // MPAndroidChart for charts
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    // MPAndroidChart or an alternative
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0") // Ensure it's sourced from MavenCentral or JitPack
 
-    // Testing
+    // Testing dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -97,4 +97,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("androidx.compose.compiler:compiler:1.5.1")
 }
